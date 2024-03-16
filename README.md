@@ -7,6 +7,7 @@
 (Note: If you're familiar with git, you can instead clone the repository)
 3. Open a terminal and navigate to the directory where you extracted the files.
 4. Run `npm install` to install the required packages.
+5. Replace/edit the example config.xml file with your own XML file. The server will serve this file when queried.
 
 ## Running the server
 
@@ -22,3 +23,7 @@ If you want to 'spoof' a domain name, you can do this by setting the host file. 
 4. Change the file type to "All files"
 5. Open the file called "hosts"
 6. Add a new line at the bottom of the file with the following content: `127.0.0.1 localhost www.example.com` where `www.example.com` is the domain name you want to use.
+
+## Notes
+
+The server will run on port 8080 by default. It's possible that the program that's querying the server will be upset about it being http on port 80. If that's the case, it'll have to be changed to https and the port to 443. Let me know 🤙

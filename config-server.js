@@ -31,9 +31,10 @@ const serveFile = (req, res) => {
     serveXml(req, res);
 }
 
-// create the express app on port 3000
+// create the express app on port 80(default port for HTTP)
+const port = process.env.PORT || 80;
 const app = express();
 app.get('*', serveFile);
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });

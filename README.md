@@ -4,9 +4,9 @@
 
 1. [Get nodejs](https://nodejs.org/en/download/current)
 2. Download the repository. You can do this by clicking the green "Code" button and then "Download ZIP". Then you'll have to extract the files to a directory of your choice.
-3. If you're familiar with git, you can also clone the repository.
-4. Open a terminal and navigate to the directory where you extracted the files.
-5. Run `npm install` to install the required packages.
+(Note: If you're familiar with git, you can instead clone the repository)
+3. Open a terminal and navigate to the directory where you extracted the files.
+4. Run `npm install` to install the required packages.
 
 ## Running the server
 

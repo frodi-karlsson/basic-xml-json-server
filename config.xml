@@ -1,0 +1,4 @@
+<config>
+    <setting name="example" value="true" />
+    <setting name="example2" value="false" />
+</config>

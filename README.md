@@ -26,4 +26,4 @@ If you want to 'spoof' a domain name, you can do this by setting the host file. 
 
 ## Notes
 
-The server will run on port 8080 by default. It's possible that the program that's querying the server will be upset about it being http on port 80. If that's the case, it'll have to be changed to https and the port to 443. Let me know 🤙
+The server will run on port 80 by default, which is the default http port. It's possible that the program that's querying the server will be expecting https. If that's the case, it'll have to be changed to self-certed https and the port to 443. Let me know 🤙

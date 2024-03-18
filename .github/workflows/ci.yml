@@ -10,7 +10,6 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
@@ -58,8 +57,5 @@ jobs:
                   keep_min_download_counts: 1 # Optional parameters
                   delete_expired_data: 10 # Optional parameters
                   delete_tag_pattern: beta # defaults to ""
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}            

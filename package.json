@@ -4,12 +4,14 @@
   "description": "",
   "main": "config-server.js",
   "scripts": {
-    "start": "node config-server.js"
+    "start": "node config-server.js",
+    "pkg": "pkg config-server.js -t node18-win-x64 -o config-server"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.3",
+    "pkg": "^5.8.1",
     "xml2json": "^0.12.0"
   },
   "engines": {

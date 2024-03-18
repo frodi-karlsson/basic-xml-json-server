@@ -36,5 +36,5 @@ const port = process.env.PORT || 80;
 const app = express();
 app.get('*', serveFile);
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}\nPress Ctrl+C to stop the server.`);
 });

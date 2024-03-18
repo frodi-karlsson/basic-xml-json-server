@@ -1,3 +1,4 @@
 node_modules
 *.exe
 .env
+config-server-macos

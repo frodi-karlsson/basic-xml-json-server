@@ -3,7 +3,7 @@ const fs = require('fs');
 const express = require('express');
 const xmlPath = path.join(__dirname, 'config.xml');
 
-const xml2json = require('xml2json');
+const {convertXML} = require('simple-xml-to-json');
 
 if (!fs.existsSync(xmlPath)) {
     fs.writeFileSync(xmlPath, `
@@ -20,7 +20,7 @@ if (!fs.existsSync(xmlPath)) {
 const serveJson = (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     const xml = fs.readFileSync(xmlPath, 'utf8');
-    const json = xml2json.toJson(xml);
+    const json = convertXML(xml);
     res.send(json);
 }
 

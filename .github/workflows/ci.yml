@@ -55,5 +55,5 @@ jobs:
             - name: Delete previous release
               uses: dev-drprasad/delete-older-releases@v0.3.3
               with:
-                  repo: <owner>/<repoName> # defaults to current repo
-                  keep_latest: 1           
+                  keep_latest: 1         
+                  delete_tags: true  

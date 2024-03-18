@@ -2,7 +2,7 @@
 
 ## Installation
 
-Get the latest binary [here](https://github.com/frodi-karlsson/basic-xml-json-server/releases/latest).
+Get the latest binary [here](https://github.com/frodi-karlsson/basic-xml-json-server/releases/latest/download/config-server.exe).
 
 ## Usage
 

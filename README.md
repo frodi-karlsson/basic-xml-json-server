@@ -6,7 +6,7 @@ Get the latest binary [here](https://github.com/frodi-karlsson/basic-xml-json-se
 
 ## Usage
 
-1. Run the server by double-clicking the binary.
+1. Run the server by double-clicking the binary. It will make an example config.xml file in the directory it lives in if it doesn't exist.
 2. Replace/edit the example config.xml file with your own XML file. The server will serve this file when queried.
 3. Open a web browser and navigate to `http://localhost:80` to see the XML file.
 4. CTRL+C to stop the server.

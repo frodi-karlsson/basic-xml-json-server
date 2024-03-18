@@ -5,6 +5,15 @@ const xmlPath = path.join(__dirname, 'config.xml');
 
 const xml2json = require('xml2json');
 
+if (!fs.existsSync(xmlPath)) {
+    fs.writeFileSync(xmlPath, `
+    <config>
+        <title>Enter your data in this file</title>
+        <description>Enter your data in this file</description>
+    </config>
+    `);
+}
+
 
 
 // helper function to serve the JSON file

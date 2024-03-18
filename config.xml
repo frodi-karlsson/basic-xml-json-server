@@ -1,4 +1,6 @@
-<config>
-    <setting name="example" value="true" />
-    <setting name="example2" value="false" />
-</config>
+
+    <config>
+        <title>Enter your data in this file</title>
+        <description>Enter your data in this file</description>
+    </config>
+    

@@ -22,12 +22,32 @@ jobs:
 
             - name: Run yarn pkg
               run: yarn pkg
-            - name: Create an incremental release
-              uses: aurestic/incrementarl-create-release@master
+            - name: Get next version
+              uses: reecetech/version-increment@2023.9.3
+              id: version
               with:
-                flag_branch: true
-                message: Bump version
-                prev_tag: 'v'
-                update_odoo_module_version: true
+                scheme: semver
+                increment: patch
+            - name: Set version
+              run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+              with:
+                tag_name: ${{ steps.version.outputs.version }}
+                release_name: Release ${{ steps.version.outputs.version }}
+                draft: false
+                prerelease: false
+            - name: Upload binaries to release
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: ./config-server.exe
+                  asset_name: config-server.exe
+                  tag: ${{ steps.version.outputs.version }}
+                  overwrite: true
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            

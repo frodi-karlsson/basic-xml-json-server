@@ -5,7 +5,8 @@
   "main": "config-server.js",
   "scripts": {
     "start": "node config-server.js",
-    "pkg": "pkg package.json -t node18-win,node18-mac -o config-server"
+    "pkg": "pkg package.json -t node18-win -o config-server",
+    "pkg:mac": "pkg package.json -t node18-macos -o config-server"
   },
   "bin": {
     "config-server": "config-server.js"

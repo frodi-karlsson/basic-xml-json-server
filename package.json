@@ -5,7 +5,7 @@
   "main": "config-server.js",
   "scripts": {
     "start": "node config-server.js",
-    "pkg": "pkg config-server.js -t node18-win-x64 -o config-server"
+    "pkg": "pkg ."
   },
   "author": "",
   "license": "ISC",

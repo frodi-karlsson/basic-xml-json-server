@@ -16,5 +16,11 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "pkg": {
+    "scripts": "config-server.js",
+    "targets": [
+      "node18-win-x64"
+    ]
   }
 }

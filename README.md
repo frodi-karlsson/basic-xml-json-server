@@ -1,17 +1,15 @@
 # XML/JSON file server
 
-## Set up
+## Installation
 
-1. [Get nodejs](https://nodejs.org/en/download/current)
-2. Download the repository. You can do this by clicking the green "Code" button and then "Download ZIP". Then you'll have to extract the files to a directory of your choice.
-(Note: If you're familiar with git, you can instead clone the repository)
-3. Open a terminal and navigate to the directory where you extracted the files.
-4. Run `npm install` to install the required packages.
-5. Replace/edit the example config.xml file with your own XML file. The server will serve this file when queried.
+Get the latest binary [here](https://github.com/frodi-karlsson/basic-xml-json-server/releases/latest).
 
-## Running the server
+## Usage
 
-Run `npm start` to start the server
+1. Run the server by double-clicking the binary.
+2. Replace/edit the example config.xml file with your own XML file. The server will serve this file when queried.
+3. Open a web browser and navigate to `http://localhost:80` to see the XML file.
+4. CTRL+C to stop the server.
 
 ## Setting the host file (Windows)
 

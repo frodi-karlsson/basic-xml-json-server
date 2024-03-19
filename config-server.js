@@ -20,7 +20,93 @@ const promptForXmlPath = async () =>
     );
   });
 
+const appendToFile = (path, data) =>
+  new Promise((resolve, reject) => {
+    fs.appendFile(path, data, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+
+const deepCopy = (obj, cache = new WeakMap()) => {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+  if (cache.has(obj)) {
+    return cache.get(obj);
+  }
+  const copy = Array.isArray(obj) ? [] : {};
+  cache.set(obj, copy);
+  Object.keys(obj).forEach((key) => {
+    copy[key] = deepCopy(obj[key], cache);
+  });
+  return copy;
+};
+
+const getDuplicateKeys = (arr) => {
+  const keys = {};
+  const duplicates = {};
+  for (let i = 0; i < arr.length; i++) {
+    const obj = arr[i];
+    for (const key in obj) {
+      if (keys[key]) {
+        duplicates[key] = true;
+      }
+      keys[key] = true;
+    }
+  }
+  return Object.keys(duplicates);
+};
+
+const formatJson = (oldJson, req) => {
+  let json = deepCopy(oldJson);
+  if (json.content) {
+    json = json.content;
+    return formatJson(json, req);
+  }
+  if (json.OFP) {
+    json = json.OFP;
+    return formatJson(json, req);
+  }
+  if (json.children) {
+    const duplicateKeys = getDuplicateKeys(json.children);
+    if (duplicateKeys.length) {
+      duplicateKeys.forEach((key) => {
+        json[key] = json[key] || [];
+        json[key].push(...json.children.map((c) => c[key]).filter((c) => c));
+      });
+      const otherChildren = json.children.filter(
+        (c) => !duplicateKeys.some((key) => c[key])
+      );
+      json.children = otherChildren;
+      return formatJson(json, req);
+    }
+    const children = {
+      ...json.children.reduce((acc, child, i) => ({ ...acc, ...child }), {}),
+    };
+    const { children: _, ...rest } = json;
+    json = {
+      ...rest,
+      ...children,
+    };
+    return formatJson(json, req);
+  }
+  Object.keys(json).forEach((key) => {
+    if (json[key] && typeof json[key] === "object") {
+      json[key] = formatJson(json[key], req);
+    } else if (json[key] && typeof json[key] === "string") {
+      // replace any unescaped slashes with escaped slashes
+      json[key] = json[key].replace(/(?<!\\)\//g, "\\/");
+    }
+  });
+  return json;
+};
+
 async function main() {
+  const start = new Date();
   await promptForXmlPath();
   if (!xmlPath) xmlPath = path.join(__dirname, "config.xml");
   if (fs.lstatSync(xmlPath).isDirectory()) {
@@ -30,6 +116,44 @@ async function main() {
     console.error("File is not an XML file:", xmlPath);
     process.exit(1);
   }
+
+  const logPath = path.resolve(
+    path.dirname(xmlPath),
+    `config-server-${start.toISOString()}.log`
+  );
+  console.log("Logging to:", logPath);
+  if (!fs.existsSync(logPath)) {
+    fs.writeFileSync(logPath, "");
+  }
+
+  const cleanLogs = async (logPath) => {
+    const logs = await new Promise((resolve, reject) => {
+      fs.readdir(logPath, (err, files) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(files);
+        }
+      });
+    });
+    const logsToDelete = logs
+      .filter((log) => log.startsWith("config-server-"))
+      .sort()
+      .slice(0, -5);
+    logsToDelete.forEach(async (log) => {
+      await new Promise((resolve, reject) => {
+        fs.unlink(path.join(logPath, log), (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    });
+  };
+
+  await cleanLogs(path.dirname(logPath));
 
   console.log("Starting the server with xmlPath:", xmlPath);
 
@@ -51,7 +175,8 @@ async function main() {
   const serveJson = (req, res) => {
     res.setHeader("Content-Type", "application/json");
     const xml = fs.readFileSync(xmlPath, "utf8");
-    const json = convertXML(xml);
+    let json = convertXML(xml);
+    json = formatJson(json, req);
     res.send(json);
   };
 
@@ -61,14 +186,42 @@ async function main() {
     res.sendFile(xmlPath);
   };
 
+  const logRequest = async (req) => {
+    await appendToFile(logPath, `Request: ${req.url}\n`);
+    await appendToFile(logPath, `Time: ${new Date().toISOString()}\n`);
+    await appendToFile(logPath, `Method: ${req.method}\n`);
+    await appendToFile(logPath, `Headers: ${JSON.stringify(req.headers)}\n`);
+    await appendToFile(logPath, `Body: ${JSON.stringify(req.body)}\n`);
+    await appendToFile(
+      logPath,
+      `---------------------------------------------\n`
+    );
+  };
+
   // main function to serve the file
   const serveFile = (req, res) => {
+    try {
+      logRequest(req);
+    } catch (e) {
+      console.error("Error logging request:", e);
+      return res.status(500).send("Error logging request");
+    }
     // if the request contains &json=1, serve the JSON file
     if (req.query.json) {
-      return serveJson(req, res);
+      try {
+        return serveJson(req, res);
+      } catch (e) {
+        console.error("Error serving JSON:", e);
+        return res.status(500).send("Error serving JSON");
+      }
     }
     // otherwise, serve the XML file
-    serveXml(req, res);
+    try {
+      return serveXml(req, res);
+    } catch (e) {
+      console.error("Error serving XML:", e);
+      return res.status(500).send("Error serving XML");
+    }
   };
 
   // create the express app on port 80 (server expects port 80)

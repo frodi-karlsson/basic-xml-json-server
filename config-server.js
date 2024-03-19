@@ -71,8 +71,8 @@ async function main() {
     serveXml(req, res);
   };
 
-  // create the express app on port 443(default port for HTTPS)
-  const port = process.env.PORT || 443;
+  // create the express app on port 80 (server expects port 80)
+  const port = process.env.PORT || 80;
   const app = express();
   app.get("*", serveFile);
   app.listen(port, () => {

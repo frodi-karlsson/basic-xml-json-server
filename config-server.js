@@ -150,10 +150,22 @@ async function main() {
     );
   }
 
+  const checkForJson = () => {
+    const jsonPath = xmlPath.replace(".xml", ".json");
+    if (fs.existsSync(jsonPath)) {
+      return jsonPath;
+    }
+  };
+
   // helper function to serve the JSON file
   const serveJson = (req, res) => {
     res.setHeader("Content-Type", "application/json");
     const xml = fs.readFileSync(xmlPath, "utf8");
+    const existingJsonPath = checkForJson();
+    if (existingJsonPath) {
+      const json = fs.readFileSync(existingJsonPath, "utf8");
+      return res.send(json);
+    }
     let json = convertXML(xml);
     json = formatJson(json, req);
     res.send(json);

@@ -22,7 +22,7 @@ jobs:
               with:
                 node-version: 18
             - name: Install dependencies
-              run: yarn install
+              run: yarn install --frozen-lockfile --ignore-optional --non-interactive
 
             - name: Run yarn build
               run: yarn build

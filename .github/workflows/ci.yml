@@ -33,11 +33,11 @@ jobs:
                 scheme: semver
                 increment: patch
             - name: Prepare for zip
-              run: mkdir -p dist && cp ./config-server.exe ./dist/config-server.exe
+              run: mkdir -p config-server && cp ./config-server.exe ./dist/config-server.exe
             - name: Zip
               uses: montudor/action-zip@v1
               with:
-                args: zip -qq -r config-server.zip ./dist
+                args: zip -qq -r config-server.zip ./config-server
             - name: Set version
               run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
             - name: Create Release

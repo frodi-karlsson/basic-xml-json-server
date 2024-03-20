@@ -1,24 +1,9 @@
 const path = require("path");
 const fs = require("fs");
 const express = require("express");
+const process = require("process");
 
-let xmlPath;
-
-const promptForXmlPath = async () =>
-  new Promise((resolve, reject) => {
-    const readline = require("readline").createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    readline.question(
-      "Enter the path to the XML file (Leave blank to attempt to auto resolve it. Seems to be broken): ",
-      (p) => {
-        xmlPath = path.resolve(p);
-        readline.close();
-        resolve();
-      }
-    );
-  });
+const xmlPathPrecursor = process.pkg ? process.cwd() : __dirname;
 
 const appendToFile = (path, data) =>
   new Promise((resolve, reject) => {
@@ -105,10 +90,11 @@ const formatJson = (oldJson, req) => {
   return json;
 };
 
+let xmlPath;
+
 async function main() {
   const start = new Date();
-  await promptForXmlPath();
-  if (!xmlPath) xmlPath = path.join(__dirname, "config.xml");
+  xmlPath = path.join(xmlPathPrecursor, "config.xml");
   if (fs.lstatSync(xmlPath).isDirectory()) {
     xmlPath = path.join(xmlPath, "config.xml");
   }

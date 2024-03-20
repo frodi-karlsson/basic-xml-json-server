@@ -801,6 +801,11 @@ node-fetch@^2.6.6:
   dependencies:
     whatwg-url "^5.0.0"
 
+node-prune@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/node-prune/-/node-prune-1.0.2.tgz#003b3edf886ab1f67e3915102d6c4835f3087181"
+  integrity sha512-WSDCF2F/ad+IZp7Gx9b5l8TT3ezP56pn0pCSm4nnkUT00rP1yuOHCapv+jKy/Q87ZqYcPtV4Z+2IifozGDpR0Q==
+
 object-inspect@^1.13.1:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/object-inspect/-/object-inspect-1.13.1.tgz#b96c6109324ccfef6b12216a956ca4dc2ff94bc2"

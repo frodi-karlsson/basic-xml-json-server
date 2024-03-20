@@ -5,8 +5,10 @@
   "main": "config-server.js",
   "scripts": {
     "start": "node config-server.js",
-    "pkg": "pkg package.json -t node18-win -o config-server",
-    "pkg:mac": "pkg package.json -t node18-macos -o config-server"
+    "pre-build": "yarn node-prune",
+    "pkg": "pkg package.json -t node18-win -o config-server -C Brotli",
+    "pkg:mac": "pkg package.json -t node18-macos -o config-server",
+    "build": "yarn pre-build && yarn pkg"
   },
   "bin": {
     "config-server": "config-server.js"
@@ -21,5 +23,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "node-prune": "^1.0.2"
   }
 }

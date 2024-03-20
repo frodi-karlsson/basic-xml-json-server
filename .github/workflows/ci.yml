@@ -24,8 +24,8 @@ jobs:
             - name: Install dependencies
               run: yarn install
 
-            - name: Run yarn pkg
-              run: yarn pkg
+            - name: Run yarn build
+              run: yarn build
             - name: Get next version
               uses: reecetech/version-increment@2023.9.3
               id: version

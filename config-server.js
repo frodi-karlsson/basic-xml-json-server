@@ -119,7 +119,7 @@ async function main() {
 
   const logPath = path.resolve(
     path.dirname(xmlPath),
-    `config-server-${start.toISOString()}.log`
+    `config-server-${start.toISOString().replace(/:/g, "-")}.log`
   );
   console.log("Logging to:", logPath);
   if (!fs.existsSync(logPath)) {

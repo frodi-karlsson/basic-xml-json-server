@@ -1,7 +1,10 @@
 node_modules
 *.exe
 .env
-config-server-macos
+config-server
+config-server.bundle.cjs
 *.log
 *.xml
 .DS_Store
+**/logs
+*.pem

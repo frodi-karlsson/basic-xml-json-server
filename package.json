@@ -2,23 +2,33 @@
   "name": "configserver",
   "version": "1.0.0",
   "description": "",
-  "main": "config-server.js",
+  "main": "config-server.bundle.cjs",
+  "type": "module",
   "scripts": {
-    "start": "node config-server.js",
-    "pre-build": "yarn node-prune",
+    "start": "node src/config-server.js",
+    "rollup": "rollup -c",
+    "pre-build": "yarn node-prune && yarn rollup",
     "pkg": "pkg package.json -t node18-win -o config-server -C Brotli",
     "pkg:mac": "pkg package.json -t node18-macos -o config-server",
-    "build": "yarn pre-build && yarn pkg"
+    "build": "yarn pre-build && yarn pkg",
+    "build:mac": "yarn pre-build && yarn pkg:mac"
   },
   "bin": {
-    "config-server": "config-server.js"
+    "config-server": "config-server.bundle.cjs"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
     "express": "^4.18.3",
+    "https": "^1.0.0",
     "pkg": "^5.8.1",
     "prebuild-install": "^7.1.2",
+    "rollup": "^4.13.0",
+    "selfsigned": "^2.4.1",
     "simple-xml-to-json": "^1.2.0"
   },
   "engines": {

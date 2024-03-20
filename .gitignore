@@ -4,3 +4,4 @@ node_modules
 config-server-macos
 *.log
 *.xml
+.DS_Store

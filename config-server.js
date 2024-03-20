@@ -203,13 +203,23 @@ async function main() {
     }
   };
 
-  // create the express app on port 80 (server expects port 80)
-  const port = process.env.PORT || 80;
+  // create the express app on port 80 (for the main client)
+  const port = 80;
   const app = express();
   app.get("*", serveFile);
   app.listen(port, () => {
     console.log(
       `Server is running on port ${port}\nPress Ctrl+C to stop the server.`
+    );
+  });
+
+  // create the express app on port 443 (for the simulated tablet)
+  const port2 = 443;
+  const app2 = express();
+  app2.get("*", serveFile);
+  app2.listen(port2, () => {
+    console.log(
+      `Server is running on port ${port2}\nPress Ctrl+C to stop the server.`
     );
   });
 }

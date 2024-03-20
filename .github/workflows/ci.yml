@@ -16,25 +16,22 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
-            - name: Get next version
-              uses: reecetech/version-increment@2023.9.3
-              id: version
-              with:
-                scheme: semver
-                increment: patch
+
             - name: "Set up Node.js"
               uses: actions/setup-node@v2
               with:
                 node-version: 18
             - name: Install dependencies
               run: yarn install --frozen-lockfile --ignore-optional --non-interactive
+
             - name: Run yarn build
               run: yarn build
-            - name: Build Windows Installer MSI from exe file
-              uses: AliceOh/CreateWindowsInstaller@1.0.0
+            - name: Get next version
+              uses: reecetech/version-increment@2023.9.3
+              id: version
               with:
-                exefile: './config-server.exe'
-                version: ${{ steps.version.outputs.version }}
+                scheme: semver
+                increment: patch
             - name: Set version
               run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
             - name: Create Release
@@ -51,8 +48,8 @@ jobs:
               uses: svenstaro/upload-release-action@v2
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
-                  file: ./config-server.msi
-                  asset_name: config-server.msi
+                  file: ./config-server.exe
+                  asset_name: config-server.exe
                   tag: ${{ steps.version.outputs.version }}
                   overwrite: true
             - name: Delete previous release

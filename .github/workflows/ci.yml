@@ -32,6 +32,12 @@ jobs:
               with:
                 scheme: semver
                 increment: patch
+            - name: Prepare for zip
+              run: mkdir -p dist && cp ./config-server.exe ./dist/config-server.exe
+            - name: Zip
+              uses: montudor/action-zip@v1
+              with:
+                args: zip -qq -r config-server.zip ./dist
             - name: Set version
               run: echo "VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
             - name: Create Release
@@ -48,8 +54,8 @@ jobs:
               uses: svenstaro/upload-release-action@v2
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
-                  file: ./config-server.exe
-                  asset_name: config-server.exe
+                  file: ./config-server.zip
+                  asset_name: config-server.zip
                   tag: ${{ steps.version.outputs.version }}
                   overwrite: true
             - name: Delete previous release

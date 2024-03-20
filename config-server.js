@@ -95,9 +95,6 @@ let xmlPath;
 async function main() {
   const start = new Date();
   xmlPath = path.join(xmlPathPrecursor, "config.xml");
-  if (fs.lstatSync(xmlPath).isDirectory()) {
-    xmlPath = path.join(xmlPath, "config.xml");
-  }
   if (!xmlPath.endsWith(".xml")) {
     console.error("File is not an XML file:", xmlPath);
     process.exit(1);

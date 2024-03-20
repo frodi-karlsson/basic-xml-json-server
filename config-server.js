@@ -47,47 +47,43 @@ const getDuplicateKeys = (arr) => {
 };
 
 const formatJson = (oldJson, req) => {
-  let json = deepCopy(oldJson);
-  if (json.content) {
-    json = json.content;
-    return formatJson(json, req);
-  }
-  if (json.OFP) {
-    json = json.OFP;
-    return formatJson(json, req);
-  }
-  if (json.children) {
-    const duplicateKeys = getDuplicateKeys(json.children);
-    if (duplicateKeys.length) {
-      duplicateKeys.forEach((key) => {
-        json[key] = json[key] || [];
-        json[key].push(...json.children.map((c) => c[key]).filter((c) => c));
-      });
-      const otherChildren = json.children.filter(
-        (c) => !duplicateKeys.some((key) => c[key])
-      );
-      json.children = otherChildren;
+  if (Array.isArray(oldJson)) {
+    return oldJson.map((json) => formatJson(json, req));
+  } else if (typeof oldJson === "object") {
+    let json = deepCopy(oldJson);
+    if (json.content) return formatJson(json.content, req);
+    if (json.OFP) return formatJson(json.OFP, req);
+    if (json.children) {
+      const duplicateKeys = getDuplicateKeys(json.children);
+      if (duplicateKeys.length) {
+        duplicateKeys.forEach((key) => {
+          json[key] = json[key] || [];
+          json[key].push(...json.children.map((c) => c[key]).filter((c) => c));
+        });
+        const otherChildren = json.children.filter(
+          (c) => !duplicateKeys.some((key) => c[key])
+        );
+        json.children = otherChildren;
+        return formatJson(json, req);
+      }
+      const children = {
+        ...json.children.reduce((acc, child, i) => ({ ...acc, ...child }), {}),
+      };
+      const { children: _, ...rest } = json;
+      json = {
+        ...rest,
+        ...children,
+      };
       return formatJson(json, req);
     }
-    const children = {
-      ...json.children.reduce((acc, child, i) => ({ ...acc, ...child }), {}),
-    };
-    const { children: _, ...rest } = json;
-    json = {
-      ...rest,
-      ...children,
-    };
-    return formatJson(json, req);
-  }
-  Object.keys(json).forEach((key) => {
-    if (json[key] && typeof json[key] === "object") {
+    Object.keys(json).forEach((key) => {
       json[key] = formatJson(json[key], req);
-    } else if (json[key] && typeof json[key] === "string") {
-      // replace any unescaped slashes with escaped slashes
-      json[key] = json[key].replace(/(?<!\\)\//g, "\\/");
-    }
-  });
-  return json;
+    });
+    return json;
+  } else if (typeof oldJson === "string") {
+    // do nothing for now
+    return oldJson;
+  }
 };
 
 let xmlPath;

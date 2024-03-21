@@ -9,5 +9,12 @@ export default {
     file: "config-server.bundle.cjs",
     format: "cjs",
   },
-  plugins: [commonjs(), resolve(), terser(), json()],
+  plugins: [
+    commonjs(),
+    resolve({
+      preferBuiltins: true,
+    }),
+    terser(),
+    json(),
+  ],
 };

@@ -13,6 +13,7 @@ import {
 import { getCertAndKey } from "./handlers/cert-handler.js";
 import pkg from "simple-xml-to-json";
 const { convertXML } = pkg;
+import zlib from "zlib";
 
 async function main() {
   const { cert, key } = getCertAndKey("www.simbrief.com");
@@ -34,55 +35,97 @@ async function main() {
   };
 
   // helper function to serve the JSON file
-  const serveJson = (req, res) => {
-    res.setHeader("Content-Type", "application/json");
+  const serveJson = (req, res, next) => {
     const xml = fs.readFileSync(xmlPath, "utf8");
+    // You can set up your own json file to serve
     const existingJsonPath = checkForJson();
     if (existingJsonPath) {
       const json = fs.readFileSync(existingJsonPath, "utf8");
-      return res.send(json);
+      return res.status(200).send(json);
     }
+    // But it's also possible to convert your XML file to JSON
     let json = convertXML(xml);
     json = formatJson(json, req);
-    res.send(json);
+    res.status(200);
+    res.body = JSON.stringify(json);
   };
 
   // helper function to serve the XML file
-  const serveXml = (req, res) => {
-    res.setHeader("Content-Type", "application/xml");
-    res.sendFile(xmlPath);
+  const serveXml = (req, res, next) => {
+    const xml = fs.readFileSync(xmlPath, "utf8");
+    res.status(200);
+    res.body = xml;
+  };
+
+  const setHeaders = (req, res, next) => {
+    console.log("Setting headers...");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Content-Encoding", "gzip");
+
+    if (req.query?.json) {
+      res.setHeader("Content-Type", "application/json");
+    } else {
+      res.setHeader("Content-Type", "application/xml");
+    }
+
+    next();
   };
 
   // main function to serve the file
-  const serveFile = (req, res) => {
+  const serveFile = (req, res, next) => {
     try {
       logRequest(req);
     } catch (e) {
       console.error("Error logging request:", e);
-      return res.status(500).send("Error logging request");
+      return res.status(500).end("Error logging request");
     }
     // if the request contains &json=1, serve the JSON file
-    if (req.query.json) {
+    if (res.getHeader("Content-Type") === "application/json") {
       try {
-        return serveJson(req, res);
+        serveJson(req, res);
       } catch (e) {
         console.error("Error serving JSON:", e);
-        return res.status(500).send("Error serving JSON");
+        return res.status(500).end("Error serving JSON");
+      }
+    } else {
+      // otherwise, serve the XML file
+      try {
+        serveXml(req, res);
+      } catch (e) {
+        console.error("Error serving XML:", e);
+        return res.status(500).end("Error serving XML");
       }
     }
-    // otherwise, serve the XML file
-    try {
-      return serveXml(req, res);
-    } catch (e) {
-      console.error("Error serving XML:", e);
-      return res.status(500).send("Error serving XML");
+
+    next();
+  };
+
+  const gzip = (req, res, next) => {
+    if (!res.body || !req.acceptsEncodings("gzip")) {
+      return next();
     }
+    console.log("Gzipping response:", res.body);
+    zlib.gzip(res.body, (err, buffer) => {
+      if (err) {
+        console.error("Error gzipping response:", err);
+        return res.status(500).send("Error gzipping response");
+      }
+      res.body = buffer;
+      next();
+    });
+  };
+
+  const sendResponse = (req, res) => {
+    res.send(res.body);
   };
 
   // create the express app on port 80 (for the main client)
   const port = 80;
   const app = express();
-  app.get("*", serveFile);
+  app.use(setHeaders);
+  app.use("*", serveFile);
+  app.use(gzip);
+  app.use(sendResponse);
   app.listen(port, () => {
     console.log(
       `Server is running on port ${port}\nPress Ctrl+C to stop the server.`
@@ -92,7 +135,10 @@ async function main() {
   // create the express app on port 443 (for the simulated tablet)
   const port2 = 443;
   const app2 = express();
-  app2.get("*", serveFile);
+  app2.use(setHeaders);
+  app2.use("*", serveFile);
+  app2.use(gzip);
+  app2.use(sendResponse);
   const server = https.createServer({ cert, key }, app2);
   server.listen(port2, () => {
     console.log(

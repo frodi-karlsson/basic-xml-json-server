@@ -54,19 +54,6 @@ export const getLogPath = () => {
   return p;
 };
 
-export const logRequest = async (req) => {
-  const logPath = getLogPath();
-  await appendToFile(logPath, `Request: ${req.url}\n`);
-  await appendToFile(logPath, `Time: ${new Date().toISOString()}\n`);
-  await appendToFile(logPath, `Method: ${req.method}\n`);
-  await appendToFile(logPath, `Headers: ${JSON.stringify(req.headers)}\n`);
-  await appendToFile(logPath, `Body: ${JSON.stringify(req.body)}\n`);
-  await appendToFile(
-    logPath,
-    `---------------------------------------------\n`
-  );
-};
-
 export const writeCertAndKey = (cert, key) => {
   const certPath = path.resolve(getBaseDir(), "cert.pem");
   const keyPath = path.resolve(getBaseDir(), "key.pem");

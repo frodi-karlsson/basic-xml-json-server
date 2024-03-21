@@ -3,9 +3,8 @@ import fs from "fs";
 import express from "express";
 import https from "https";
 import { formatJson } from "./handlers/json-handler.js";
-import { cleanLogs } from "./handlers/log-handler.js";
+import { cleanLogs, logRequest, logResponse } from "./handlers/log-handler.js";
 import {
-  logRequest,
   getXmlPath,
   getLogPath,
   writeCertAndKey,
@@ -72,9 +71,9 @@ async function main() {
   };
 
   // main function to serve the file
-  const serveFile = (req, res, next) => {
+  const serveFile = async (req, res, next) => {
     try {
-      logRequest(req);
+      await logRequest(req);
     } catch (e) {
       console.error("Error logging request:", e);
       return res.status(500).end("Error logging request");
@@ -115,8 +114,10 @@ async function main() {
     });
   };
 
-  const sendResponse = (req, res) => {
+  const sendResponse = async (req, res, next) => {
     res.send(res.body);
+    await logResponse(res);
+    next();
   };
 
   // create the express app on port 80 (for the main client)

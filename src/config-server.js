@@ -59,8 +59,10 @@ async function main() {
   const setHeaders = (req, res, next) => {
     console.log("Setting headers...");
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Content-Encoding", "gzip");
-
+    res.setHeader("Vary", "Accept-Encoding");
+    if (req.headers["accept-encoding"]?.includes("gzip")) {
+      res.setHeader("Content-Encoding", "gzip");
+    }
     if (req.query?.json) {
       res.setHeader("Content-Type", "application/json");
     } else {

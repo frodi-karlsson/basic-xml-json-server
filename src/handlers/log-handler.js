@@ -58,7 +58,7 @@ export const logResponse = async (res) => {
   await appendToFile(logPath, `Status: ${res.statusCode}\n`);
   await appendToFile(logPath, `Headers: ${JSON.stringify(res.getHeaders())}\n`);
   await appendToFile(logPath, `Body: ${res.body}\n`);
-  if (res.getHeaders()["content-encoding"] === "gzip") {
+  if (res.getHeader("content-encoding") === "gzip") {
     await appendToFile(logPath, `Unzipped Body: ${await unGzip(res.body)}\n`);
   }
   await appendToFile(logPath, "------------------------------------------\n");

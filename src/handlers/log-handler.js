@@ -53,13 +53,55 @@ const unGzip = (buffer) =>
   });
 
 export const logResponse = async (res) => {
+  const encodingToZlibFunction = {
+    gzip: (body) =>
+      new Promise((resolve, reject) =>
+        zlib.gunzip(body, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result.toString());
+          }
+        })
+      ),
+    deflate: (body) =>
+      new Promise((resolve, reject) =>
+        zlib.inflate(body, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result.toString());
+          }
+        })
+      ),
+    br: (body) =>
+      new Promise((resolve, reject) =>
+        zlib.brotliDecompress(body, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result.toString());
+          }
+        })
+      ),
+  };
   const logPath = getLogPath();
   await appendToFile(logPath, "-   Response Generated:  -\n");
   await appendToFile(logPath, `Status: ${res.statusCode}\n`);
   await appendToFile(logPath, `Headers: ${JSON.stringify(res.getHeaders())}\n`);
   await appendToFile(logPath, `Body: ${res.body}\n`);
-  if (res.getHeader("content-encoding") === "gzip") {
-    await appendToFile(logPath, `Unzipped Body: ${await unGzip(res.body)}\n`);
+  if (res.getHeader("content-encoding")) {
+    const encoding = res.getHeader("content-encoding");
+    const zlibFunction = encodingToZlibFunction[encoding];
+    if (!zlibFunction) {
+      await appendToFile(logPath, `Unknown encoding: ${encoding}\n`);
+      return;
+    }
+    await appendToFile(logPath, `Encoding: ${encoding}\n`);
+    await appendToFile(
+      logPath,
+      `Unencoded Body: ${await zlibFunction(res.body)}\n`
+    );
   }
   await appendToFile(logPath, "------------------------------------------\n");
 };

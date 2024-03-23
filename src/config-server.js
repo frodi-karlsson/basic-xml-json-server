@@ -60,9 +60,6 @@ async function main() {
     console.log("Setting headers...");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Vary", "Accept-Encoding");
-    if (req.headers["accept-encoding"]?.includes("gzip")) {
-      res.setHeader("Content-Encoding", "gzip");
-    }
     if (req.query?.json) {
       res.setHeader("Content-Type", "application/json");
     } else {
@@ -102,14 +99,34 @@ async function main() {
   };
 
   const gzip = (req, res, next) => {
-    if (!res.body || !req.acceptsEncodings("gzip")) {
+    if (!res.body) {
       return next();
     }
-    console.log("Gzipping response:", res.body);
-    zlib.gzip(res.body, (err, buffer) => {
+    const acceptEncoding =
+      req.headers["accept-encoding"]?.split(",").map((s) => s.trim()) || [];
+    const availableEncodings = ["gzip", "deflate", "br"];
+    const encoding = acceptEncoding.find((e) => availableEncodings.includes(e));
+    if (!encoding) {
+      return next();
+    }
+
+    res.setHeader("Content-Encoding", encoding);
+
+    const encodingToZlibFunction = {
+      gzip: zlib.gzip,
+      deflate: zlib.deflate,
+      br: zlib.brotliCompress,
+    };
+
+    const zlibFunction = encodingToZlibFunction[encoding];
+    if (!zlibFunction) {
+      return next();
+    }
+
+    zlibFunction(res.body, (err, buffer) => {
       if (err) {
-        console.error("Error gzipping response:", err);
-        return res.status(500).send("Error gzipping response");
+        console.error("Error encoding response with " + encoding, err);
+        return res.status(500).send("Error encoding response");
       }
       res.body = buffer;
       next();
@@ -142,7 +159,7 @@ async function main() {
   app2.use("*", serveFile);
   app2.use(gzip);
   app2.use(sendResponse);
-  const server = https.createServer({ cert, key }, app2);
+  const server = https.createServer({ cert, key, enableTrace: true }, app2);
   server.listen(port2, () => {
     console.log(
       `Server is running on port ${port2}\nPress Ctrl+C to stop the server.`
